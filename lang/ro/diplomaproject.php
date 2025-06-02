@@ -27,8 +27,7 @@ defined('MOODLE_INTERNAL') || die();
 
 // General plugin strings.
 
-$string['pluginname'] = 'Diploma Project';
-$string['modulename'] = 'Diploma Project';
-$string['modulenameplural'] = 'Diploma Projects';
-$string['modulename_help'] = 'This module allows teachers to post thesis topics and manage student proposals by accepting or rejecting them, facilitating the coordination and evaluation of diploma projects.';
-$string['pluginadministration'] = 'Administrarea proiectelor de diplomă';
+$string['pluginname'] = 'Proiect Diplomă';
+$string['modulename'] = 'Proitect Diplomă';
+$string['modulenameplural'] = 'Proiecte Diplomă';
+$string['modulename_help'] = 'Acest modul permite profesorilor să posteze teme ca subiecte pentru lucrări de licență și să le gestioneze, acceptând sau refuzând propunerile studenților, facilitând astfel procesul de coordonare și evaluare a lucrărilor de licență.';
