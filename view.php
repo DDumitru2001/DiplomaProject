@@ -59,5 +59,7 @@ $PAGE->set_heading(format_string($course->fullname));
 $PAGE->set_context($modulecontext);
 
 echo $OUTPUT->header();
+//Context here
+//TODO solve this issue for editing-teacher POV https://github.com/DDumitru2001/DiplomaProject/issues/5
 
 echo $OUTPUT->footer();

@@ -32,3 +32,6 @@ $string['modulename'] = 'Diploma Project';
 $string['modulenameplural'] = 'Diploma Projects';
 $string['modulename_help'] = 'This module allows teachers to post thesis topics and manage student proposals by accepting or rejecting them, facilitating the coordination and evaluation of diploma projects.';
 $string['pluginadministration'] = 'Administrarea proiectelor de diplomă';
+$string['diplomaprojectname'] = 'Name of the diploma project activity';
+$string['diplomaprojectsettings'] = 'Diploma project settings';
+$string['diplomaprojectfieldset'] = 'Diploma project settings';

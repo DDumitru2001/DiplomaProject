@@ -31,3 +31,6 @@ $string['pluginname'] = 'Proiect Diplomă';
 $string['modulename'] = 'Proitect Diplomă';
 $string['modulenameplural'] = 'Proiecte Diplomă';
 $string['modulename_help'] = 'Acest modul permite profesorilor să posteze teme ca subiecte pentru lucrări de licență și să le gestioneze, acceptând sau refuzând propunerile studenților, facilitând astfel procesul de coordonare și evaluare a lucrărilor de licență.';
+$string['diplomaprojectname'] = 'Numele activității proiectului de diplomă';
+$string['diplomaprojectsettings'] = 'Setări pentru proiectul de diplomă';
+$string['diplomaprojectfieldset'] = 'Setări Diplomă';
