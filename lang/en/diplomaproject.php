@@ -35,3 +35,6 @@ $string['pluginadministration'] = 'Administrarea proiectelor de diplomă';
 $string['diplomaprojectname'] = 'Name of the diploma project activity';
 $string['diplomaprojectsettings'] = 'Diploma project settings';
 $string['diplomaprojectfieldset'] = 'Diploma project settings';
+$string['uploadcsv'] = 'Upload CSV';
+$string['import'] = 'Import';
+$string['csvimported'] = 'CSV file imported successfully.';

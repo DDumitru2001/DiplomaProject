@@ -31,5 +31,16 @@ $capabilities = [
             'manager' => CAP_ALLOW
         ],
         'clonepermissionsfrom' => 'moodle/course:manageactivities'
-    ]
+    ],
+    'mod/diplomaproject:setpapers' => [
+        'captype' => 'read',
+        'contextlevel' => CONTEXT_MODULE,
+        'archetypes' => [
+            'student' => CAP_PREVENT,
+            'teacher' => CAP_PREVENT,
+            'editingteacher' => CAP_ALLOW,
+            'noneditingteacher' => CAP_PREVENT,
+            'manager' => CAP_ALLOW
+        ]
+    ],
 ];
