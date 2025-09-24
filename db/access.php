@@ -39,7 +39,6 @@ $capabilities = [
             'student' => CAP_PREVENT,
             'teacher' => CAP_PREVENT,
             'editingteacher' => CAP_ALLOW,
-            'noneditingteacher' => CAP_PREVENT,
             'manager' => CAP_ALLOW
         ]
     ],

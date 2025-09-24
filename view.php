@@ -25,6 +25,7 @@
 require(__DIR__.'/../../config.php');
 require_once(__DIR__.'/lib.php');
 require_once(__DIR__ . '/classes/form/csv_upload_form.php');
+
 // Course module id.
 $id = optional_param('id', 0, PARAM_INT);
 
@@ -61,89 +62,158 @@ echo $OUTPUT->header();
 if (optional_param('csv', '', PARAM_ALPHA) === 'imported') {
     echo $OUTPUT->notification(get_string('csvimported', 'mod_diplomaproject'), 'notifysuccess');
 }
-
 //Context here
 //TODO solve this issue for editing-teacher POV https://github.com/DDumitru2001/DiplomaProject/issues/5
-var_dump($cm->instance);
+//var_dump($cm->instance);
 $rec = $DB->get_record('diplomaproject', ['id' => $cm->instance]);
 
-// Instanțierea formularului cu id-ul modulului, pentru a fi păstrat după submit.
-$form = new \mod_diplomaproject\form\csv_upload_form(null, ['id' => $cm->id]);
+$context = context_module::instance($cm->id);
 
-if ($form->is_cancelled()) {
-    redirect(new moodle_url('/mod/diplomaproject/view.php', ['id' => $cm->id]));
-} else if ($data = $form->get_data()) {
-    // Recuperează course module și instanța după submit (dacă e nevoie)
-    $cm = get_coursemodule_from_id('diplomaproject', $data->id, 0, false, MUST_EXIST);
-    $rec = $DB->get_record('diplomaproject', ['id' => $cm->instance]);
+$existing = $DB->get_records('diplomaproject_number_of_papers', [
+    'diplomaprojectid' => $cm->instance
+]);
 
-    $fs = get_file_storage();
-    $context = context_module::instance($cm->id);
+if (has_capability('mod/diplomaproject:setpapers', $context)) {
 
-    // Salvează fișierul din zona draft în zona modulului
-    $draftid = file_get_submitted_draft_itemid('csvfile');
-    file_save_draft_area_files(
-        $draftid,
-        $context->id,
-        'mod_diplomaproject',
-        'csvfiles',  // zona ta custom
-        0,
-        [
-            'subdirs' => 0,
-            'maxfiles' => 1,
-            'accepted_types' => ['.csv'],
-        ]
-    );
+    if ($existing && !optional_param('reimport', 0, PARAM_BOOL)) {
+        echo html_writer::tag('h3', get_string('importeddata', 'mod_diplomaproject'));
+        echo html_writer::start_tag('table', ['class' => 'generaltable boxaligncenter']);
 
-    // Recuperează fișierele din zona modulului
-    $files = $fs->get_area_files($context->id, 'mod_diplomaproject', 'csvfiles', 0, '', false);
+        echo html_writer::start_tag('tr');
+        echo html_writer::tag('th', get_string('teachername', 'mod_diplomaproject'));
+        echo html_writer::tag('th', get_string('numberofpapers', 'mod_diplomaproject'));
+        echo html_writer::end_tag('tr');
 
-    if (empty($files)) {
-        echo $OUTPUT->notification("⚠️ Nu s-a găsit niciun fișier în zona modulului.", 'notifyproblem');
-    } else {
-        foreach ($files as $file) {
-            if ($file->is_directory()) {
-                continue;
-            }
-
-            $content = $file->get_content();
-            $rows = explode(PHP_EOL, $content);
-            $headers = str_getcsv(array_shift($rows));
-
-            echo html_writer::tag('h3', 'Date CSV importate:');
-
-            echo html_writer::start_tag('table', ['border' => 1, 'class' => 'generaltable']);
+        foreach ($existing as $rec) {
             echo html_writer::start_tag('tr');
-            foreach ($headers as $header) {
-                echo html_writer::tag('th', s($header));
-            }
+            echo html_writer::tag('td', s($rec->teacher_name));
+            echo html_writer::tag('td', s($rec->number_of_papers));
             echo html_writer::end_tag('tr');
+        }
 
-            foreach ($rows as $row) {
-                if (trim($row) === '') {
-                    continue;
-                }
-                $values = str_getcsv($row);
-                if (count($headers) === count($values)) {
-                    echo html_writer::start_tag('tr');
-                    foreach ($values as $value) {
-                        echo html_writer::tag('td', s($value));
-                    }
-                    echo html_writer::end_tag('tr');
+        echo html_writer::end_tag('table');
+
+        echo html_writer::start_tag('form', [
+            'method' => 'POST',
+            'action' => '',
+        ]);
+
+        echo html_writer::empty_tag('input', [
+            'type' => 'hidden',
+            'name' => 'reimport',
+            'value' => 1
+        ]);
+
+        echo $OUTPUT->single_button('#', get_string('reimport', 'mod_diplomaproject'), 'get', [
+            'data-confirmation' => 'modal',
+            'data-confirmation-title-str' => json_encode(['reimport', 'mod_diplomaproject']),
+            'data-confirmation-content-str' => json_encode(['confirmreimport', 'mod_diplomaproject']),
+            'data-confirmation-yes-button-str' => json_encode(['reimport', 'mod_diplomaproject']),
+            'data-submit' => 'form',
+        ]);
+
+        echo html_writer::end_tag('form');
+
+    } else {
+        if (optional_param('reimport', 0, PARAM_BOOL)) {
+            $DB->delete_records('diplomaproject_number_of_papers', [
+                'diplomaprojectid' => $cm->instance
+            ]);
+            echo $OUTPUT->notification(get_string('olddataremoved', 'mod_diplomaproject'), 'notifysuccess');
+        }
+
+        $form = new \mod_diplomaproject\form\csv_upload_form(null, ['id' => $cm->id]);
+
+        if ($form->is_cancelled()) {
+            redirect(new moodle_url('/mod/diplomaproject/view.php', ['id' => $cm->id]));
+        } else if ($data = $form->get_data()) {
+            $fs = get_file_storage();
+            $draftid = file_get_submitted_draft_itemid('csvfile');
+
+            file_save_draft_area_files(
+                $draftid,
+                $context->id,
+                'mod_diplomaproject',
+                'csvfiles',
+                0,
+                [
+                    'subdirs' => 0,
+                    'maxfiles' => 1,
+                    'accepted_types' => ['.csv', '.xls', '.xlsx'],
+                ]
+            );
+
+            $files = $fs->get_area_files($context->id, 'mod_diplomaproject', 'csvfiles', 0, '', false);
+
+            $file = null;
+            foreach ($files as $f) {
+                if (!$f->is_directory()) {
+                    $file = $f;
+                    break;
                 }
             }
-            echo html_writer::end_tag('table');
+
+            if (!$file) {
+                echo $OUTPUT->notification("No file loaded.", 'notifyproblem');
+            } else {
+                $filename = $file->get_filename();
+                $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+                $content = $file->get_content();
+                $rows = [];
+
+                if ($ext === 'csv') {
+                    $delimiter = strpos($content, ';') !== false ? ';' : ',';
+                    $handle = fopen('php://memory', 'r+');
+                    fwrite($handle, $content);
+                    rewind($handle);
+
+                    while (($line = fgetcsv($handle, 0, $delimiter)) !== false) {
+                        $rows[] = $line;
+                    }
+                    fclose($handle);
+
+                } elseif (in_array($ext, ['xls', 'xlsx'])) {
+                    require_once($CFG->libdir . '/phpspreadsheet/vendor/autoload.php');
+                    $tmp = tmpfile();
+                    $path = stream_get_meta_data($tmp)['uri'];
+                    fwrite($tmp, $content);
+
+                    $reader = \PhpOffice\PhpSpreadsheet\IOFactory::createReaderForFile($path);
+                    $spreadsheet = $reader->load($path);
+                    $worksheet = $spreadsheet->getActiveSheet();
+
+                    foreach ($worksheet->toArray() as $row) {
+                        $rows[] = $row;
+                    }
+                    fclose($tmp);
+                }
+
+                if (!empty($rows)) {
+                    $headers = array_shift($rows);
+
+                    foreach ($rows as $row) {
+                        if (count($row) < 2) {
+                            continue;
+                        }
+
+                        $record = new stdClass();
+                        $record->diplomaprojectid = $cm->instance;
+                        $record->teacher_name = trim($row[0]);
+                        $record->number_of_papers = (int) $row[1];
+
+                        $DB->insert_record('diplomaproject_number_of_papers', $record);
+                    }
+
+                    echo $OUTPUT->notification(get_string('csvimported', 'mod_diplomaproject'), 'notifysuccess');
+                    redirect(new moodle_url('/mod/diplomaproject/view.php', ['id' => $cm->id]));
+                }
+            }
+
+        } else {
+            echo html_writer::tag('h4', get_string('importdata', 'mod_diplomaproject'));
+            $form->display();
         }
     }
-
-    echo $OUTPUT->notification(get_string('csvimported', 'mod_diplomaproject'), 'notifysuccess');
 }
-
-// Afișează formularul mereu
-$form->display();
-
-
-
-
 
 echo $OUTPUT->footer();

@@ -8,8 +8,8 @@ require_once($CFG->libdir . '/formslib.php');
 class csv_upload_form extends \moodleform {
     public function definition() {
         $mform = $this->_form;
-        $mform->addElement('filepicker', 'csvfile', get_string('uploadcsv', 'mod_diplomaproject'), null, [
-            'accepted_types' => ['.csv'],
+        $mform->addElement('filepicker', 'csvfile', 'xslx', get_string('uploadcsv', 'mod_diplomaproject'), null, [
+            'accepted_types' => ['.csv', '.xslx'],
             'maxbytes' => 0,
         ]);
 

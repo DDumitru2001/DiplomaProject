@@ -19,5 +19,18 @@
         <KEY NAME="fk_course" TYPE="foreign" FIELDS="course" REFTABLE="course" REFFIELDS="id"/>
       </KEYS>
     </TABLE>
+
+    <TABLE NAME="diplomaproject_number_of_papers" COMMENT="Stores the number of papers per teacher.">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="diplomaprojectid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="teacher_name" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="Teacher name"/>
+        <FIELD NAME="number_of_papers" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Number of papers"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+    </TABLE>
+
   </TABLES>
 </XMLDB>
